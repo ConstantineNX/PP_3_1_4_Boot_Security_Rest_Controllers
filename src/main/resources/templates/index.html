@@ -2,10 +2,73 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
 <head>
     <title>Spring Security Example</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 0;
+        }
+
+        .contaianer {
+            max-width: 600px;
+            margin: 100px auto;
+            text-align: center;
+        }
+
+        h1 {
+            color: #333333;
+            margin-bottom: 30px;
+        }
+
+        .button-grop {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-register {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-register:hover {
+            background-color: #218838;
+        }
+
+        .btn-login {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .btn-login:hover {
+            background-color: #0056b3;
+        }
+
+    </style>
 </head>
 <body>
-<h1>Welcome to Index PAGE!</h1>
+<div class="contaianer">
+<h1>Добро пожаловать в приложение!</h1>
 
-
+<div class="button-grop">
+    <form th:action="@{/register}" method="get" style="display: inline;">
+        <button type="submit" class="btn btn-register">Зарегистрироваться</button>
+    </form>
+    <form th:action="@{/login}" method="get" style="display: inline;">
+        <button type="submit" class="btn btn-login">Войти</button>
+    </form>
+    </div>
+</div>
 </body>
 </html>
