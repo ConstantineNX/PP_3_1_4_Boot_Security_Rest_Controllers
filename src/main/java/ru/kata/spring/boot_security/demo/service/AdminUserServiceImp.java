@@ -9,9 +9,7 @@ import ru.kata.spring.boot_security.demo.repository.RoleRepository;
 import ru.kata.spring.boot_security.demo.repository.UserRepository;
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityNotFoundException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 public class AdminUserServiceImp implements AdminUserService {
@@ -33,6 +31,18 @@ public class AdminUserServiceImp implements AdminUserService {
         return userRepository.findAll();
     }
 
+    @Transactional(readOnly = true)
+    @Override
+    public List<Role> findAllRoles() {
+        return roleRepository.findAll();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<User> findAllWithRoles() {
+        return userRepository.findAllWithRoles();
+    }
+
     @Transactional
     @Override
     public User saveUser(User user) {
@@ -40,10 +50,13 @@ public class AdminUserServiceImp implements AdminUserService {
         Objects.requireNonNull(user.getFirstName());
         Objects.requireNonNull(user.getEmail());
         if (user.getFirstName().trim().isEmpty() || user.getEmail().trim().isEmpty()) {
-            throw new EntityNotFoundException("The user must have at least a name and email adress");
+            throw new EntityNotFoundException("The user must have at least a name and email address");
         }
         if (user.getFirstName().length() < 3 || user.getFirstName().length() > 30) {
             throw new EntityNotFoundException("The first name must be between 3 and 30 characters");
+        }
+        if (userRepository.existsByEmail(user.getEmail())) {
+            throw new EntityExistsException("The user already exists");
         }
         return userRepository.save(user);
     }
@@ -90,13 +103,15 @@ public class AdminUserServiceImp implements AdminUserService {
         } catch (EntityNotFoundException e) {
 //        email свободен, можно регистрировать
         }
-        String warPassword = user.getPassword();
-        user.setPassword(passwordEncoder.encode(warPassword));
-        String roleName = user.getEmail().matches("(?i)^(admin|administrator)[0-9]*@.*") ? "ROLE_ADMIN" : "ROLE_USER";
-        Role role = roleRepository
-                .findByName(roleName)
-                .orElseThrow(() -> new EntityNotFoundException("Role not found with name: " + roleName));
-        user.setRoles(Collections.singleton(role));
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        if (user.getEmail().matches("(?i)^(admin|administrator)[0-9]*@.*")) {
+            Role adminRole = roleRepository.findByName("ROLE_ADMIN")
+                    .orElseThrow(()-> new EntityNotFoundException("Role not found: ROLE_ADMIN"));
+            user.getRoles().add(adminRole);
+        }
+        Role userRole = roleRepository.findByName("ROLE_USER")
+                .orElseThrow(()-> new EntityNotFoundException("Role not found: ROLE_USER"));
+        user.getRoles().add(userRole);
         return userRepository.save(user);
     }
 }

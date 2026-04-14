@@ -6,7 +6,6 @@ import org.springframework.stereotype.Component;
 import ru.kata.spring.boot_security.demo.entity.Role;
 import ru.kata.spring.boot_security.demo.repository.RoleRepository;
 
-
 @Component
 public class DataInitializer implements ApplicationRunner {
 

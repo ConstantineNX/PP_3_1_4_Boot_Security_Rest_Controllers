@@ -14,9 +14,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Collection;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 @Data
 @ToString(exclude = {"createdAt", "updatedAt"})
@@ -46,6 +44,7 @@ public class User implements UserDetails {
     private String city;
 
     @Column(name = "email", nullable = false, unique = true, length = 50)
+    @NotBlank(message = "Email is required")
     private String email;
 
     @Column(name = "phone", length = 12)
@@ -59,15 +58,17 @@ public class User implements UserDetails {
     private LocalDateTime updatedAt;
 
     @Column(name = "password", nullable = false, length = 60)
+    @NotBlank(message = "Password is required")
     private String password;
 
     @ManyToMany(fetch = FetchType.LAZY)
+    @OrderBy("id ASC")
     @JoinTable(
     name = "user_roles",
     joinColumns = @JoinColumn(name = "user_id"),
     inverseJoinColumns = @JoinColumn(name = "role_id")
     )
-    private Set<Role> roles;
+    private Set<Role> roles = new LinkedHashSet<>();
 
     public LocalDateTime getCreatedAt() {
         return createdAt.truncatedTo(ChronoUnit.SECONDS);

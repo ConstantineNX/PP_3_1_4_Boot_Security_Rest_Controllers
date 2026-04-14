@@ -1,14 +1,21 @@
 package ru.kata.spring.boot_security.demo.controllers;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import ru.kata.spring.boot_security.demo.entity.Role;
 import ru.kata.spring.boot_security.demo.entity.User;
 import ru.kata.spring.boot_security.demo.service.AdminUserService;
+import javax.persistence.EntityExistsException;
 import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/admin")
@@ -22,7 +29,7 @@ public class AdminController {
 
     @ModelAttribute("users")
     public List<User> findAll() {
-        return userService.findAllUsers();
+        return userService.findAllWithRoles();
     }
 
     @ModelAttribute("user")
@@ -30,62 +37,85 @@ public class AdminController {
         return new User();
     }
 
+    public void addAttributes(Model model, String view, User currentUser) {
+        boolean isAdmin = false;
+            for (Role role : currentUser.getRoles()) {
+                if (role.getName().equals("ROLE_ADMIN")) {
+                    isAdmin = true;
+                    break;
+                }
+            }
+        model.addAttribute("currentUser", currentUser);
+        model.addAttribute("isAdmin", isAdmin);
+        model.addAttribute("view", view);
+        model.addAttribute("allRoles", userService.findAllRoles());
+    }
+
     @GetMapping()
-    public String findAllUsers() {
-        return "/admin/adminUsers";
+    public String findAllUsers(@AuthenticationPrincipal User currentUser,
+                               @RequestParam(required = false) String view,
+                               Model model) {
+        User freshUser = userService.findUserById(currentUser.getId());
+        addAttributes(model, view, freshUser);
+        model.addAttribute("activeTab", "usersTable");
+        if ("USER".equals(view)) {
+            model.addAttribute("users",List.of(freshUser));
+        }
+        return "admin/adminBootstrap";
     }
 
     @PostMapping("/save")
-    public String saveUser(@ModelAttribute("user") User user) {
-        userService.saveUser(user);
-        return "redirect:/admin";
+    public String saveUser(@Valid @ModelAttribute User user, BindingResult result,
+                           @RequestParam(required = false) String view,
+                           @AuthenticationPrincipal User currentUser,
+                           Model model) {
+        if (result.hasErrors()) {
+            addAttributes(model, view, currentUser);
+            model.addAttribute("user", user);
+            model.addAttribute("activeTab", "saveTab");
+            return "admin/adminBootstrap";
+        }
+        try {
+            userService.saveUser(user);
+            return "redirect:/admin";
+        } catch (IllegalArgumentException | EntityExistsException e) {
+            User freshUser = userService.findUserByEmail(currentUser.getEmail());
+            if (e.getMessage().contains("email") | e.getMessage().contains("exists")) {
+                result.rejectValue("email", null,  "User already exists");
+            } else {
+                model.addAttribute("error", e.getMessage());
+            }
+            addAttributes(model, view, freshUser);
+            model.addAttribute("user", user);
+            model.addAttribute("activeTab", "saveTab");
+            return "admin/adminBootstrap";
+        }
     }
 
-    @PostMapping("/delete/{id}")
-    public String deleteUser(@PathVariable("id") Long id) {
+    @PostMapping("/delete")
+    public String deleteUser(@RequestParam Long id) {
         userService.deleteUser(id);
         return "redirect:/admin";
     }
 
-    @GetMapping("/update/{id}")
-    public String updateUser(@PathVariable("id") Long id,
-                             @RequestParam(required = false) String error,
-                             Model model) {
-        User user = userService.findUserById(id);
-        model.addAttribute("user", user);
-        model.addAttribute("actionUrl", "/admin/update/" + id);
-        model.addAttribute("cancelUrl", "/admin");
-        if (error != null) {
-            model.addAttribute("error", error);
-        }
-        return "admin/update-form";
-    }
-
-    @PostMapping("/update/{id}")
-    public String updateUser(@PathVariable("id") Long id,
-                             @Valid @ModelAttribute("user") User user,
-                             BindingResult bindingResult,
-                             Model model) {
+    @PostMapping("/update")
+    @ResponseBody
+    public ResponseEntity<?> updateUser(@Valid @ModelAttribute User user,
+                                        BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-            return "admin/update-form";
+            HashMap<String, String> errors = new HashMap<>();
+            bindingResult.getFieldErrors().stream()
+                    .filter(errorspassword -> !errorspassword.getField().equals("password"))
+                    .forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
+            if (!errors.isEmpty()) {
+                return ResponseEntity.badRequest().body(errors);
+            }
         }
         try {
-            userService.updateUser(id, user);
-            return "redirect:/admin";
+            userService.updateUser(user.getId(), user);
+            return ResponseEntity.ok().build();
         } catch (EntityNotFoundException e) {
-            model.addAttribute("error", e.getMessage());
-            return "admin/update-form";
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
         }
-    }
-
-    @GetMapping("/search")
-    public String search(@RequestParam Long id, Model model) {
-        try {
-            User user = userService.findUserById(id);
-            model.addAttribute("foundUser", user);
-        } catch (EntityNotFoundException e) {
-            model.addAttribute("error", "the user was not found with the id " + id);
-        }
-        return "/admin/adminUsers";
     }
 }

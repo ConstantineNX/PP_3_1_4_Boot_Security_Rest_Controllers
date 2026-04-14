@@ -1,16 +1,19 @@
 package ru.kata.spring.boot_security.demo.controllers;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 import ru.kata.spring.boot_security.demo.entity.User;
 import ru.kata.spring.boot_security.demo.service.AdminUserService;
 import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
+import java.util.HashMap;
+import java.util.Map;
+import ru.kata.spring.boot_security.demo.entity.Role;
 
 @Controller
 public class UserController {
@@ -22,37 +25,45 @@ public class UserController {
     }
 
     @GetMapping("/user")
-    public String profileUser(@AuthenticationPrincipal User user, Model model) {
+    public String profileUser(@AuthenticationPrincipal User user,
+                              Model model) {
+        boolean isUser = false;
+        for (Role role : user.getRoles()) {
+            if (role.getName().equals("ROLE_USER")) {
+                isUser = true;
+                break;
+            }
+        }
         User user1 = userService.findUserByEmail(user.getEmail());
-        model.addAttribute("user", user1);
-        return "user/profile-view";
-    }
-
-    @GetMapping("/user/edit")
-    public String editUser(@AuthenticationPrincipal User user, Model model) {
-        User user1 = userService.findUserById(user.getId());
-        model.addAttribute("user", user1);
-        model.addAttribute("actionUrl", "/user/edit");
-        model.addAttribute("cancelUrl", "/user");
-        return "admin/update-form";
+        model.addAttribute("currentUser", user);
+        model.addAttribute("view", "USER" );
+        model.addAttribute("user", user);
+        model.addAttribute("users", user1);
+        model.addAttribute("isUser", isUser);
+        return "admin/adminBootstrap";
     }
 
     @PostMapping("/user/edit")
-    public String updateUser(@Valid @ModelAttribute User updateUser,
-                             BindingResult result,
-                             @AuthenticationPrincipal User currentUser,
-                             Model model) {
+    @ResponseBody
+    public ResponseEntity<?> updateUser(@Valid @ModelAttribute("user") User updateUser,
+                                     BindingResult result,
+                                     @AuthenticationPrincipal User currentUser) {
         if (result.hasErrors()) {
-            model.addAttribute("user", updateUser);
-            return "admin/update-form";
+            HashMap<String, String> errors = new HashMap<>();
+            result.getFieldErrors().stream()
+                            .filter(error -> !error.getField().equals("password"))
+                            .filter(errorPassword -> !errorPassword.getField().equals("roles"))
+                            .forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
+            if (!errors.isEmpty()) {
+                return ResponseEntity.badRequest().body(errors);
+            }
         }
         Long id = currentUser.getId();
         try {
             userService.updateUser(id, updateUser);
-            return "redirect:/user";
+            return ResponseEntity.ok().build();
         } catch (EntityNotFoundException e) {
-            model.addAttribute("error", e.getMessage());
-            return "admin/update-form";
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", e.getMessage()));
         }
     }
 }
