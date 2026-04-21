@@ -6,29 +6,54 @@
     <link rel="stylesheet" th:href="@{/css/update-form.css}">
 </head>
 <body>
-<div class="user-form">
+<div id="registerForm" class="user-form">
     <h2>Регистрация</h2>
-    <form th:action="@{/register}" th:object="${user}" method="post">
-        <div th:if="${error!=null}" style="color: red; margin-bottom: 15px;">
-            <span th:text="${error}"></span>
-        </div>
         <div class="form-group">
             <label>Имя:</label>
-            <input type="text" th:field="${user.firstName}" required>
+            <input type="text" id="firstName" required>
         </div>
         <div class="form-group">
             <label>Email:</label>
-            <input type="email" th:field="${user.email}" required>
+            <input type="email" id="email" required>
         </div>
         <div class="form-group">
             <label>Пароль:</label>
-            <input type="password" th:field="${user.password}" required>
+            <input type="password" id="password" required>
         </div>
         <div class="form-actions">
-            <button type="submit">Зарегистрироваться</button>
+            <button type="button" onclick="register()">Зарегистрироваться</button>
         </div>
-    </form>
     <p>Уже есть аккаунт? <a href="/login">Войти</a></p>
 </div>
+
+<script>
+function register() {
+    const user = {
+        firstName: document.getElementById('firstName').value,
+        email: document.getElementById('email').value,
+        password: document.getElementById('password').value
+    }
+
+    fetch('/api/register', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(user)
+    })
+        .then(response => {
+            if (response.ok){
+                return response.json();
+            } else {
+                return response.json().then(error => alert (error.error || 'ошибка регистрации'))
+            }
+        })
+        .then(user => {
+            if (user.roles.includes('ROLE_ADMIN')) {
+                window.location.href='/admin';
+            } else {
+                window.location.href='/user';
+            }
+        });
+}
+</script>
 </body>
 </html>

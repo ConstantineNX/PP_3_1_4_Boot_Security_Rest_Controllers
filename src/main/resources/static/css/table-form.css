@@ -2,118 +2,31 @@
 table {
     border-collapse: collapse;
     width: 100%;
-    max-width: 1400px;
+    max-width: 1300px;
     margin: 40px auto 0;
     table-layout: fixed;
 }
-th, td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
-    white-space: normal;
-}
-td:nth-child(4),
-td:nth-child(7) {
+
+td:nth-child(4) {
     white-space: nowrap;
-    text-align: right;
+    text-align: left;
 }
-td:nth-child(8),
-td:nth-child(9) {
-    text-align: center;
-}
+
 th {
     overflow-wrap: break-word;
     white-space: normal;
     background-color: gray;
     color: white;
 }
-th:nth-child(1) { width: 2%; }
-th:nth-child(2) { width: 7%; }
-th:nth-child(3) { width: 8%; }
-th:nth-child(4) { width: 6%; }
-th:nth-child(5) { width: 8%; }
-th:nth-child(6) { width: 13%; }
-th:nth-child(7) { width: 11%; }
-th:nth-child(8) { width: 14% }
-th:nth-child(9) { width: 14%; }
-th:nth-child(10) { width: 10%; }
-th:nth-child(11) { width: 7%; }
+th:nth-child(1) { width: 5%; }
+th:nth-child(2) { width: 15%; }
+th:nth-child(3) { width: 15%; }
+th:nth-child(4) { width: 10%; }
+th:nth-child(5) { width: 18%; }
+th:nth-child(6) { width: 19%; }
+th:nth-child(7) { width: 9%; }
+th:nth-child(8) { width: 9% }
 tr:nth-child(even) { background-color: darkgray; }
-td:nth-child(10) {
-    white-space: nowrap;
-    text-align: center;
-    vertical-align: middle;
-    padding: 8px 0;
-}
-
-/* ===== КНОПКИ ДЕЙСТВИЙ (редактировать, удалить) ===== */
- .btn-edit, .btn-delete {
-     display: inline-block;
-     padding: 6px 10px;
-     margin: 0 5px;
-     border-radius: 6px;
-     text-decoration: none;
-     font-size: 18px;
-     transition: all 0.3s ease;
-     border: none;
-     cursor: pointer;
- }
-
-/* Кнопка редактирования (карандаш) */
-.btn-edit:hover {
-    background-color: #3a5a87;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(74, 111, 165, 0.4);
-}
-/*Кнопка редактирования (корзина) */
-.btn-delete:hover {
-    background-color: #c82333;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(220, 53, 69, 0.4);
-}
-
-/* Кнопки сохранить и очистить */
-.btn-save, .btn-reset {
-    padding: 12px 30px;
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-.btn-save {
-    background: linear-gradient(135deg, #4a6fa5 0%, #3a5a87 100%);
-    color: white;
-    box-shadow: 0 4px 10px rgba(74, 111, 165, 0.3);
-}
-
-.btn-save:hover {
-    background: linear-gradient(135deg, #5b7191 0%, #213180 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(74, 111, 165, 0.4);
-}
-
-.btn-reset {
-    background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
-    color: white;
-    box-shadow: 0 4px 10px rgba(108, 117, 125, 0.3);
-}
-
-.btn-reset:hover {
-    background: linear-gradient(135deg, #5a6268 0%, #484e53 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(108, 117, 125, 0.4);
-}
-
-/* для кнопок при нажатии */
-.btn-save:active, .btn-reset:active, .btn-edit:active, .btn-delete:active {
-    transform: translateY(0);
-    box-shadow: none;
-}
 
      /* ==== ЗАГОЛОВОК ФОРМЫ ===== */
  h2 {
@@ -124,7 +37,7 @@ td:nth-child(10) {
      border-bottom: 2px solid #4a6fa5;
  }
 
-.centr-style {
+.center-style {
     text-align: center;
 }
 
@@ -138,57 +51,39 @@ td:nth-child(10) {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.form-group {
-    margin-bottom: 20px;
-    display: flex;
-    flex-direction: column;
-}
-
-.form-group label {
-    font-weight: 600;
-    margin-bottom: 5px;
-    color: #555;
-    font-size: 14px;
-}
-
-.form-group input {
-    padding: 12px 15px;
-    border: 2px solid #e0e0e0;
-    border-radius: 8px;
-    font-size: 15px;
-    transition: all 0.3s;
-    background: white;
-}
-
-.form-group input:focus {
-    outline: none;
-    border-color: #4a6fa5;
-    box-shadow: 0 0 8px rgba(74, 111, 165, 0.2);
-}
-
-.form-group input::placeholder {
-    color: #aaa;
-    font-style: italic;
-}
-
-/* ===== КНОПКИ ФОРМЫ ===== */
-.form-actions {
-    display: flex;
-    gap: 15px;
-    justify-content: center;
-    margin-top: 25px;
-}
-
-/*=====КНОПКА ВЫХОДА ИЗ АККАУНТА==== */
-.btn-logout {
-    background-color: #dc3545;
+/*=====КНОПКИ ADMIN И USER в меню слева==== */
+.sidebar-btn.active {
+    background-color: #007bff;
     color: white;
-    padding: 6px 10px;
+    border-radius: 3px;
+}
+.sidebar-btn {
+    width: 100%;
+    display: block;
+    text-align: left;
+    padding: 10px 0 10px 25px;
+    background: none;
     border: none;
-    border-radius: 6px;
     cursor: pointer;
 }
-.btn-logout:hover {
-    background-color: #c82333;
+/*=====ВКЛАДКИ НА СТРАНИЦЕ==== */
+.nav-link.active {
+    color: #007bff !important;
+    background-color: white !important;
 }
+/*========Элементы JS=======*/
+#userTableTab,
+#addNewUser,
+#adminTableContainer,
+#allUsers,
+#userTableContainer,
+#saveTable,
+#userLinkProfile,
+#userLinkProfile,
+#adminBtn {
+    display: none;
+}
+
+
+
 
