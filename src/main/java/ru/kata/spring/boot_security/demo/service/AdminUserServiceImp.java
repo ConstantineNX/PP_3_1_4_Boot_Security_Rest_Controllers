@@ -42,19 +42,6 @@ public class AdminUserServiceImp implements AdminUserService {
     @Transactional(readOnly = true)
     @Override
     public List<UserResponseDto> findAllUsers() {
-        return userRepository.findAll().stream()
-                .map(UserResponseDto :: new)
-                .collect(Collectors.toList());
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public List<Role> findAllRoles() {
-        return roleRepository.findAll();
-    }
-
-    @Transactional(readOnly = true)
-    public List<UserResponseDto> findAllWithRoles() {
         return userRepository.findAllWithRoles().stream()
                 .map(UserResponseDto :: new)
                 .collect(Collectors.toList());
@@ -107,12 +94,6 @@ public class AdminUserServiceImp implements AdminUserService {
     @Override
     public UserResponseDto findUserById(Long id) {
         User user = userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Invalid user id"));
-        return new UserResponseDto(user);
-    }
-
-
-    UserResponseDto findUserByEmail(String email) {
-        User user = userRepository.findByEmailWithRoles(email).orElseThrow(() -> new EntityNotFoundException("Invalid user email"));
         return new UserResponseDto(user);
     }
 
