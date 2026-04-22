@@ -43,13 +43,25 @@ function register() {
             if (response.ok){
                 return response.json();
             } else {
-                return response.json().then(error => alert (error.error || 'ошибка регистрации'))
+                return response.json().then(error => {
+                    document.querySelectorAll('.error-message').forEach(el => el.remove())
+                    for ( const [field, message] of Object.entries(error)) {
+                        const input = document.getElementById(field);
+                        if (input) {
+                            const error = document.createElement('div');
+                            error.className = 'error-message text-danger';
+                            error.textContent = message;
+                            input.parentNode.appendChild(error);
+                            }
+                    }
+                    return null;
+                });
             }
         })
         .then(user => {
-            if (user.roles.includes('ROLE_ADMIN')) {
+            if (user && user.roles && user.roles.includes('ROLE_ADMIN')) {
                 window.location.href='/admin';
-            } else {
+            } else if (user && user.roles) {
                 window.location.href='/user';
             }
         });

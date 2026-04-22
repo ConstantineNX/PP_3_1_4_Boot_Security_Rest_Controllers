@@ -33,9 +33,7 @@ public class AdminUserServiceImp implements AdminUserService {
         user1.setFirstName(user.getFirstName());
         user1.setLastName(user.getLastName());
         user1.setAge(user.getAge());
-        user1.setCity(user.getCity());
         user1.setEmail(user.getEmail());
-        user1.setPhone(user.getPhone());
         return user1;
     }
 
@@ -79,9 +77,7 @@ public class AdminUserServiceImp implements AdminUserService {
         user1.setFirstName(user.getFirstName());
         user1.setLastName(user.getLastName());
         user1.setAge(user.getAge());
-        user1.setCity(user.getCity());
         user1.setEmail(user.getEmail());
-        user1.setPhone(user.getPhone());
         if (user.getRoleIds() != null && !user.getRoleIds().isEmpty()) {
             Set<Role> roles = new HashSet<>(roleRepository.findAllById(user.getRoleIds()));
             user1.setRoles(roles);

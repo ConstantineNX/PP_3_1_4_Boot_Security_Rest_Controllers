@@ -16,11 +16,7 @@ public class UserResponseDto {
     private String firstName;
     private String lastName;
     private Integer age;
-    private String city;
     private String email;
-    private String phone;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
     private Set<String> roles;
 
     public UserResponseDto(User user) {
@@ -28,11 +24,7 @@ public class UserResponseDto {
         this.firstName = user.getFirstName();
         this.lastName = user.getLastName();
         this.age = user.getAge();
-        this.city = user.getCity();
         this.email = user.getEmail();
-        this.phone = user.getPhone();
-        this.createdAt = user.getCreatedAt();
-        this.updatedAt = user.getUpdatedAt();
         this.roles = user.getRoles().stream()
                 .map(Role::getName)
                 .collect(Collectors.toSet());

@@ -28,37 +28,18 @@ public class User implements UserDetails {
 
     @Column(name = "first_name", nullable = false, length = 30)
     @NotBlank(message = "First name is required")
-    @Size(min = 3, max = 30, message = "First name must be between 3 and 30 characters")
     private String firstName;
 
     @Column(name = "last_name", length = 30)
-    @Size(min = 3, max = 30, message = "Last name must be between 3 and 30 characters")
     private String lastName;
 
     @Column(name = "age")
-    @Min(value = 0, message = "возраст не может быть отрицательным или равным 0")
-    @Max(value = 130, message = "возраст не может превышать 120 лет")
     private Integer age;
 
-    @Column(name = "city", length = 30)
-    private String city;
-
     @Column(name = "email", nullable = false, unique = true, length = 50)
-    @NotBlank(message = "Email is required")
     private String email;
 
-    @Column(name = "phone", length = 12)
-    private String phone;
-
-    @CreationTimestamp
-    @Column(updatable = false)
-    private LocalDateTime createdAt;
-
-    @UpdateTimestamp
-    private LocalDateTime updatedAt;
-
     @Column(name = "password", nullable = false, length = 60)
-    @NotBlank(message = "Password is required")
     private String password;
 
     @ManyToMany(fetch = FetchType.LAZY)
@@ -69,14 +50,6 @@ public class User implements UserDetails {
     inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private Set<Role> roles = new LinkedHashSet<>();
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt.truncatedTo(ChronoUnit.SECONDS);
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt != null ? updatedAt.truncatedTo(ChronoUnit.SECONDS) : null;
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -91,7 +64,7 @@ public class User implements UserDetails {
         if (getId() != null & user.getId() != null) {
             return Objects.equals(getId(), user.getId());
         } else {
-            return Objects.equals(email, user.email) && Objects.equals(phone, user.phone);
+            return Objects.equals(email, user.email);
         }
     }
 
@@ -100,7 +73,7 @@ public class User implements UserDetails {
         if (getId() != null) {
             return Objects.hash(getId());
         } else {
-            return Objects.hash(email, phone);
+            return Objects.hash(email);
         }
     }
 

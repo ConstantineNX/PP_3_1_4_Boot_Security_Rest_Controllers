@@ -22,16 +22,11 @@ public class UserRequestDto {
     @Max(value = 130, message = "возраст не может превышать 130 лет")
     private Integer age;
 
-    private String city;
-
     @NotBlank(message = "Email is required")
     @Email(message = "Email should be valid")
     private String email;
 
-    @Size(min = 10, max = 12, message = "телефон должен быть в диапозоне 10-12 цифр")
-    private String phone;
-
-    @Size(min = 3, message = "пароль не может быть менее 3-символов")
+    @Size(min = 3, message = "пароль не может быть менее 3-x символов")
     private String password;
 
     private Set<Long> roleIds;
